@@ -6,6 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   os = "bento/ubuntu-18.04"
+  centos = "bento/centos-7.2"
   net_ip = "192.168.50"
 
   config.vm.define :master, primary: true do |master_config|
@@ -44,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   [
     ["minion1",    "#{net_ip}.11",    "1024",    os ],
-    ["minion2",    "#{net_ip}.12",    "1024",    os ],
+    ["minion2",    "#{net_ip}.12",    "1024",    centos ],
   ].each do |vmname,ip,mem,os|
     config.vm.define "#{vmname}" do |minion_config|
       minion_config.vm.provider "virtualbox" do |vb|

@@ -7,6 +7,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   os = "bento/ubuntu-18.04"
   centos = "bento/centos-7.2"
+  windows_os = "tas50/windows_2016"
   net_ip = "192.168.50"
 
   config.vm.define :master, primary: true do |master_config|
@@ -30,7 +31,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       salt.minion_pub = "saltstack/keys/master_minion.pub"
       salt.seed_master = {
                           "minion1" => "saltstack/keys/minion1.pub",
-                          "minion2" => "saltstack/keys/minion2.pub"
+                          "minion2" => "saltstack/keys/minion2.pub",
+                          "windows" => "saltstack/keys/windows.pub"
                          }
 
       salt.install_type = "stable"
@@ -67,6 +69,27 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         salt.colorize = true
         salt.bootstrap_options = "-P -c /tmp -x python3"
       end
+    end
+  end
+
+  config.vm.define :windows do |windows|
+    windows.vm.provider "virtualbox" do |vb|
+      vb.memory = 2048
+      vb.cpus = 1
+      vb.name = "windows"
+    end
+
+    windows.vm.box = windows_os
+    windows.vm.hostname = "windows"
+    windows.vm.network :private_network, ip: "#{net_ip}.15"
+
+    windows.vm.provision :salt do |salt|
+      salt.minion_config = "saltstack/etc/windows"
+      salt.minion_key = "saltstack/keys/windows.pem"
+      salt.minion_pub = "saltstack/keys/windows.pub"
+      salt.verbose = true
+      salt.colorize = true
+      salt.bootstrap_script = "saltstack/bootstrap/bootstrap-salt.ps1"
     end
   end
 end
